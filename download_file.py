@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service  
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 import re
 import os
 
@@ -81,6 +82,20 @@ def open_url(driver,page_url, download_path):
     # 检查文件是否存在
     file_exists = check_file_existence(download_path, expected_filename)
     print(f"文件{'存在' if file_exists else '不存在'}。")
+    
+    # 如果文件已存在，则不继续执行后续操作
+    if file_exists:
+        print("文件已存在，跳过下载。")
+        return  # 使用return语句提前退出函数
+    
+    # 找到验证码图片元素
+    captcha_xpath = "/html/body/div[2]/div/div[2]/form/div[1]/div/img"
+    captcha_element = driver.find_element(By.XPATH, captcha_xpath)
+    # 截取验证码图片
+    captcha_path = os.path.join(download_path, "captcha.png")
+    captcha_element.screenshot(captcha_path)
+    print(f"验证码截图已保存为: {captcha_path}")
+    
     # 退出WebDriver
     # driver.quit()
 
