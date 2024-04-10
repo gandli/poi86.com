@@ -121,6 +121,7 @@ def open_url(driver,page_url, download_path):
         captcha_xpath = "/html/body/div[2]/div/div[2]/form/div[1]/div/img"
         captcha_input_xpath = "/html/body/div[2]/div/div[2]/form/div[1]/input"
         submit_button_xpath = "/html/body/div[2]/div/div[2]/form/div[2]/button" 
+        error_message_xpath = "/html/body/div[1]/div/div/div[2]/div"
         
         captcha_path = os.path.join(download_path, "captcha.png")
         capture_captcha(driver, captcha_xpath, captcha_path)
@@ -139,15 +140,19 @@ def open_url(driver,page_url, download_path):
             submit_button_element.click()
             # 等待
             time.sleep(3)
-            if "验证码错误" in driver.page_source:
-                print("验证码错误，请重试...")
+            # 检查是否出现了“验证码错误”的提示
+            error_messages = driver.find_elements(By.XPATH, error_message_xpath)
+            if error_messages and "验证码错误" in error_messages[0].text:
+                print("验证码错误，重试...")
                 attempt += 1
+                continue
             else:
+                print("操作成功或没有错误提示")
                 break
         else:
-            print("验证码识别失败，重试...")
+            print("验证码识别格式不符合预期，重试...")
             attempt += 1
-            
+            continue
     if attempt == max_attempts:
         print("达到最大尝试次数，停止尝试。")
     
