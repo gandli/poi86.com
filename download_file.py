@@ -47,15 +47,15 @@ def construct_expected_filename(page_url, page_title):
     filename = f"{page_title_cleaned}_{admin_code}_{file_type}_(poi86.com).zip"
     return filename
 
-def open_url(page_url, download_path):
-    driver = init_webdriver(download_path)
+def open_url(driver,page_url, download_path):
+    # driver = init_webdriver(download_path)
     driver.get(page_url)
     page_title = driver.title
     print(page_title)
     # 构造预期的下载文件名
     expected_filename = construct_expected_filename(page_url, page_title)
     print(f"预期的下载文件名: {expected_filename}") 
-    driver.quit()
+    # driver.quit()
     
 if __name__ == "__main__":
     download_path = "downloads"  

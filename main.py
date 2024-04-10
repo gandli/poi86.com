@@ -1,14 +1,22 @@
+# main.py
 from get_urls import get_urls
-from download_file import open_url
+from download_file import open_url, init_webdriver
 
 def main():
-    file_path = "downloads/province_city_district_urls.json"
-    num_provinces_to_fetch = 1  # 或者设置为您想处理的省份数量
-    urls = get_urls(file_path, num_provinces_to_fetch)
     download_path = "downloads"
+    file_path = download_path + "/province_city_district_urls.json"
+    num_provinces_to_fetch = 1  # 设置为您想处理的省份数量
+    urls = get_urls(file_path, num_provinces_to_fetch)
     
-    for page_url in urls:
-        open_url(page_url, download_path)
-
+    # 初始化webdriver
+    driver = init_webdriver(download_path)
+    
+    # 遍历URLs并执行操作
+    for page_url in urls[:1]:  # 这里[:1]确保只处理第一个URL
+        open_url(driver, page_url, download_path)  # 确保传递driver实例
+        
+    # 所有操作完成后关闭webdriver
+    driver.quit()
+    
 if __name__ == "__main__":
     main()
