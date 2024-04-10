@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 import re
 import os
 import ddddocr
+import time
 
 def check_file_existence(download_path, expected_filename):
     """
@@ -118,6 +119,9 @@ def open_url(driver,page_url, download_path):
             return  # 使用return语句提前退出函数
         
         captcha_xpath = "/html/body/div[2]/div/div[2]/form/div[1]/div/img"
+        captcha_input_xpath = "/html/body/div[2]/div/div[2]/form/div[1]/input"
+        submit_button_xpath = "/html/body/div[2]/div/div[2]/form/div[2]/button" 
+        
         captcha_path = os.path.join(download_path, "captcha.png")
         capture_captcha(driver, captcha_xpath, captcha_path)
 
@@ -126,7 +130,20 @@ def open_url(driver,page_url, download_path):
 
         if re.match(r'^[a-zA-Z0-9]{4}$', captcha_text):
             print(f"验证码识别成功: {captcha_text}")
-            break
+            # 找到验证码输入框并输入验证码
+            captcha_input_element = driver.find_element(By.XPATH, captcha_input_xpath)
+            captcha_input_element.send_keys(captcha_text)
+
+            # 找到提交按钮并点击
+            submit_button_element = driver.find_element(By.XPATH, submit_button_xpath)
+            submit_button_element.click()
+            # 等待
+            time.sleep(3)
+            if "验证码错误" in driver.page_source:
+                print("验证码错误，请重试...")
+                attempt += 1
+            else:
+                break
         else:
             print("验证码识别失败，重试...")
             attempt += 1

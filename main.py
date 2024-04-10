@@ -12,7 +12,7 @@ def main():
     driver = init_webdriver(download_path)
     
     # 遍历URLs并执行操作
-    for page_url in urls[:1]:  # 这里[:1]确保只处理第一个URL
+    for page_url in urls:  # 这里[:1]确保只处理第一个URL
         open_url(driver, page_url, download_path)  # 确保传递driver实例
         
     # 所有操作完成后关闭webdriver
