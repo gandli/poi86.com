@@ -29,3 +29,8 @@ def get_urls(file_path, num_provinces_to_fetch=None):
                     urls.extend([shapefile['url'] for shapefile in district.get('shapefiles', [])])
 
     return urls
+
+
+if __name__ == "__main__":
+    json_path = "downloads/province_city_district_urls.json"  
+    get_urls(json_path) 

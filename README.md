@@ -10,6 +10,8 @@
 - requests
 - beautifulsoup4
 - ddddocr
+- selenium
+- webdriver-manager
 
 #### 环境
 
@@ -31,10 +33,11 @@ rm -rf "$(basename "$(pwd)")_env"
 
 #### 安装依赖
 
-1. 安装依赖 `requests`、 `beautifulsoup4`
+1. 安装依赖 `requests`、 `beautifulsoup4`、`selenium`、`webdriver-manager`
 
 ```bash
-pip install requests beautifulsoup4
+pip install requests beautifulsoup4 selenium webdriver-manager
+
 pip freeze > requirements.txt
 pip install -r requirements.txt
 ```
