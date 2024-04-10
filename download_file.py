@@ -6,6 +6,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import re
 import os
+import ddddocr
 
 def check_file_existence(download_path, expected_filename):
     """
@@ -66,38 +67,76 @@ def construct_expected_filename(page_url, page_title):
     # 构造文件名
     filename = f"{page_title_cleaned}_{admin_code}_{file_type}_(poi86.com).zip"
     return filename
+def capture_captcha(driver, captcha_xpath, captcha_path):
+    """
+    截取验证码图片并保存。
+
+    :param driver: WebDriver实例，用于浏览页面和定位元素。
+    :param captcha_xpath: 验证码图片的XPath。
+    :param captcha_path: 验证码图片的保存路径。
+    :return: None
+    """
+    captcha_element = driver.find_element(By.XPATH, captcha_xpath)
+    captcha_element.screenshot(captcha_path)
+    print(f"验证码截图已保存为: {captcha_path}")
+
+def recognize_captcha(captcha_path):
+    """
+    识别给定路径的验证码图片。
+
+    :param captcha_path: 验证码图片的路径。
+    :return: 识别出的验证码文本。
+    """
+    ocr = ddddocr.DdddOcr(show_ad=False, det=False, ocr=True)
+    with open(captcha_path, 'rb') as f:
+        image = f.read()
+    captcha_text = ocr.classification(image)
+    return captcha_text
 
 # 打开页面并获取预期的下载文件名
 def open_url(driver,page_url, download_path):
-    # 初始化WebDriver
-    # driver = init_webdriver(download_path)
-    # 打开页面
-    driver.get(page_url)
-    # 获取页面标题
-    page_title = driver.title
-    print(page_title)
-    # 构造预期的下载文件名
-    expected_filename = construct_expected_filename(page_url, page_title)
-    print(f"预期的下载文件名: {expected_filename}") 
-    # 检查文件是否存在
-    file_exists = check_file_existence(download_path, expected_filename)
-    print(f"文件{'存在' if file_exists else '不存在'}。")
-    
-    # 如果文件已存在，则不继续执行后续操作
-    if file_exists:
-        print("文件已存在，跳过下载。")
-        return  # 使用return语句提前退出函数
-    
-    # 找到验证码图片元素
-    captcha_xpath = "/html/body/div[2]/div/div[2]/form/div[1]/div/img"
-    captcha_element = driver.find_element(By.XPATH, captcha_xpath)
-    # 截取验证码图片
-    captcha_path = os.path.join(download_path, "captcha.png")
-    captcha_element.screenshot(captcha_path)
-    print(f"验证码截图已保存为: {captcha_path}")
+    max_attempts=3
+    attempt = 0
+    while attempt < max_attempts:
+        # 初始化WebDriver
+        # driver = init_webdriver(download_path)
+        # 打开页面
+        driver.get(page_url)
+        # 获取页面标题
+        page_title = driver.title
+        print(f"页面标题： {page_title}")  # 打印page_title)
+        # 构造预期的下载文件名
+        expected_filename = construct_expected_filename(page_url, page_title)
+        print(f"预期的下载文件名: {expected_filename}") 
+        # 检查文件是否存在
+        file_exists = check_file_existence(download_path, expected_filename)
+        print(f"文件{'存在' if file_exists else '不存在'}。")
+        
+        # 如果文件已存在，则不继续执行后续操作
+        if file_exists:
+            print("文件已存在，跳过下载。")
+            return  # 使用return语句提前退出函数
+        
+        captcha_xpath = "/html/body/div[2]/div/div[2]/form/div[1]/div/img"
+        captcha_path = os.path.join(download_path, "captcha.png")
+        capture_captcha(driver, captcha_xpath, captcha_path)
+
+        captcha_text = recognize_captcha(captcha_path)
+        print(f"验证码为: {captcha_text}")
+
+        if re.match(r'^[a-zA-Z0-9]{4}$', captcha_text):
+            print(f"验证码识别成功: {captcha_text}")
+            break
+        else:
+            print("验证码识别失败，重试...")
+            attempt += 1
+            
+    if attempt == max_attempts:
+        print("达到最大尝试次数，停止尝试。")
     
     # 退出WebDriver
     # driver.quit()
+    
 
 if __name__ == "__main__":
     download_path = "downloads"  # 设置下载路径
