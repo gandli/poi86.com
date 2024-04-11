@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import os
 
 base_url = "https://www.poi86.com"
 download_path = "downloads"
@@ -89,9 +90,12 @@ def generate_download_urls(base_url, admin_code, file_type):
 # soup = BeautifulSoup(requests.get(f"{base_url}/poi/amap/areas.html").text, 'html.parser')
 # col_md_2_elements = soup.find_all(class_="col-md-2")
 try:
+    
     soup = BeautifulSoup(
+        # https://www.poi86.com/poi/amap/areas.html
         requests.get(f"{base_url}/poi/amap/areas.html").text, "html.parser"
     )
+    
     col_md_2_elements = soup.find_all(class_="col-md-2")
 except Exception as e:
     print(f"解析省份页面失败: {e}")
