@@ -96,7 +96,7 @@ def recognize_captcha(captcha_path):
 
 # 打开页面并获取预期的下载文件名
 def open_url(driver,page_url, download_path):
-    max_attempts=3
+    max_attempts=10
     attempt = 0
     while attempt < max_attempts:
         # 初始化WebDriver
